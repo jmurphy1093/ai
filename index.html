@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jessica Murphy | Professor - McLennan Community College</title>
+    <style>
+        /* Base Reset & Variables */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --primary-color: #1a365d; /* Deep Academic Blue */
+            --secondary-color: #2b6cb0; /* Accent Blue */
+            --text-dark: #2d3748; /* Slate Charcoal */
+            --bg-light: #f7fafc; /* Warm White/Light Grey */
+            --white: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+
+        /* Header & Navigation */
+        header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .header-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .logo p {
+            font-size: 0.85rem;
+            opacity: 0.85;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--white);
+            transition: var(--transition);
+        }
+
+        nav a:hover::after, nav a.active::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #2a4365 0%, #1a365d 100%);
+            color: var(--white);
+            padding: 5rem 2rem;
+            text-align: center;
+        }
+
+        .hero-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h2 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .hero .subtitle {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .hero .institution {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #90cdf4;
+            margin-bottom: 2rem;
+        }
+
+        /* Main Layout Content */
+        main {
+            max-width: 1100px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background-color: var(--white);
+            padding: 2.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2.5rem;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+        }
+
+        /* Cards/Quick Links Grid */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background-color: var(--white);
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 2rem;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary-color);
+        }
+
+        .card h4 {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Action Buttons */
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        /* Interactive Counter Area */
+        .interactive-zone {
+            text-align: center;
+            background-color: #ebf8ff;
+            border: 1px dashed var(--secondary-color);
+        }
+
+        .counter-box {
+            margin: 1.5rem 0;
+        }
+
+        .counter-box span {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: block;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 5rem;
+            font-size: 0.9rem;
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .hero h2 {
+                font-size: 2rem;
+            }
+            .hero .subtitle {
+                font-size: 1.1rem;
+            }
+            .section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <h1>Jessica Murphy</h1>
+                <p>McLennan Community College</p>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">Home</a></li>
+                    <li><a href="accounting.html">Accounting Department</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-container">
+            <h2>Jessica Murphy</h2>
+            <div class="subtitle">Professor</div>
+            <div class="institution">McLennan Community College</div>
+        </div>
+    </section>
+
+    <main>
+        <section class="section">
+            <h3>Welcome</h3>
+            <p>Hello and welcome to my academic homepage. As a Professor at McLennan Community College, I am dedicated to fostering a rigorous, supportive, and engaging learning environment for all of my students.</p>
+            <p>Explore this portal to locate resources for current courses, find office hour schedules, or learn more about our academic pathways.</p>
+        </section>
+
+        <div class="grid-container">
+            <div class="card">
+                <div>
+                    <h4>Accounting Programs</h4>
+                    <p>Access syllabi, lecture slides, homework portals, and curriculum updates for your current accounting modules.</p>
+                </div>
+                <a href="accounting.html" class="btn">View Accounting Resources &rarr;</a>
+            </div>
+
+            <div class="card interactive-zone">
+                <div>
+                    <h4>Office Hours Check-in</h4>
+                    <p>Simulate checking in for advising or virtual questions. Click below to see your queue status.</p>
+                    <div class="counter-box">
+                        <span id="visitorCount">0</span>
+                        <p style="font-size: 0.85rem; color: #4a5568; margin: 0;">Students checked-in today</p>
+                    </div>
+                </div>
+                <button id="checkInBtn" class="btn">Check In Now</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Jessica Murphy | Professor at McLennan Community College. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkInBtn = document.getElementById('checkInBtn');
+            const visitorCountSpan = document.getElementById('visitorCount');
+            
+            // Retrieve local storage counter state or set default
+            let count = parseInt(localStorage.getItem('mcc_v_count')) || 14;
+            visitorCountSpan.textContent = count;
+
+            // Simple interactive tracking function
+            checkInBtn.addEventListener('click', () => {
+                count++;
+                visitorCountSpan.textContent = count;
+                localStorage.setItem('mcc_v_count', count);
+                
+                // Provide visual button feedback
+                checkInBtn.textContent = "Checked In! ✓";
+                checkInBtn.style.backgroundColor = "#38a169"; // Green indicator
+                checkInBtn.disabled = true;
+
+                // Reset button status after 3 seconds
+                setTimeout(() => {
+                    checkInBtn.textContent = "Check In Now";
+                    checkInBtn.style.backgroundColor = "var(--secondary-color)";
+                    checkInBtn.disabled = false;
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>
