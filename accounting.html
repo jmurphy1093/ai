@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Accounting Lesson: Debits & Credits</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Shake animation for incorrect answers */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .animate-shake {
+            animation: shake 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header / Navigation -->
+    <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-500 text-indigo-950 p-2 rounded-lg font-bold text-xl tracking-tight shadow-md">
+                    AC101
+                </div>
+                <div>
+                    <h1 class="text-md sm:text-lg font-bold leading-none">Accounting Basics</h1>
+                    <span class="text-xs text-indigo-200">Professor Ledger's Classroom</span>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="hidden md:flex items-center space-x-4 w-96">
+                <span class="text-xs text-indigo-200 whitespace-nowrap">Class Progress:</span>
+                <div class="w-full bg-indigo-950 rounded-full h-3 overflow-hidden p-0.5 border border-indigo-700/50">
+                    <div id="progressBar" class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: 10%;"></div>
+                </div>
+                <span id="progressPercent" class="text-xs font-semibold text-amber-400 w-8">10%</span>
+            </div>
+
+            <!-- Dashboard Badges -->
+            <div class="flex items-center space-x-2">
+                <span id="badgeScore" class="bg-indigo-800 border border-indigo-700 px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
+                    <span class="text-amber-400">★</span> <span>0 / 500 XP</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-6">
+        
+        <!-- Left Sidebar: Professor Ledger & Navigation Tree -->
+        <aside class="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4">
+            
+            <!-- Professor Avatar Card -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                <div class="flex items-center space-x-4 lg:space-x-0 lg:flex-col lg:items-center text-center lg:space-y-3">
+                    <div class="relative">
+                        <div class="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-gradient-to-tr from-indigo-500 to-amber-500 p-1 shadow-lg flex items-center justify-center text-3xl">
+                            🎓
+                        </div>
+                        <span class="absolute bottom-0 right-0 bg-green-500 border-2 border-white w-4 h-4 rounded-full"></span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Professor Ledger</h3>
+                        <p class="text-xs text-slate-500 font-medium">Your Virtual Guide</p>
+                    </div>
+                </div>
+                
+                <!-- Bubble Chat -->
+                <div class="mt-4 bg-slate-50 border border-slate-100 rounded-xl p-4 relative">
+                    <div class="absolute -top-2 left-8 lg:left-1/2 lg:-translate-x-1/2 w-4 h-4 bg-slate-50 border-t border-l border-slate-100 rotate-45"></div>
+                    <p id="profBubble" class="text-sm text-slate-600 italic leading-relaxed">
+                        "Welcome to class, future accountant! Don't panic. Today, we break down the absolute bedrock of business language: Debits and Credits. I promise, no math degree required!"
+                    </p>
+                </div>
+            </div>
+
+            <!-- Navigation Progress Tracker -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Lesson Syllabus</h4>
+                <nav class="space-y-1">
+                    <button onclick="switchTab(1)" id="nav-1" class="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-left bg-indigo-50 text-indigo-700 transition">
+                        <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">1</span>
+                        <span>The Big Equation</span>
+                    </button>
+                    <button onclick="switchTab(2)" id="nav-2" class="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-left text-slate-600 hover:bg-slate-50 transition">
+                        <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">2</span>
+                        <span>Left vs. Right</span>
+                    </button>
+                    <button onclick="switchTab(3)" id="nav-3" class="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-left text-slate-600 hover:bg-slate-50 transition">
+                        <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">3</span>
+                        <span>The DEA LER Rule</span>
+                    </button>
+                    <button onclick="switchTab(4)" id="nav-4" class="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-left text-slate-600 hover:bg-slate-50 transition">
+                        <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">4</span>
+                        <span>Practice Sandbox</span>
+                    </button>
+                    <button onclick="switchTab(5)" id="nav-5" class="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-left text-slate-600 hover:bg-slate-50 transition">
+                        <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs">5</span>
+                        <span>The final Exam</span>
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Right Main Interactive Display -->
+        <section id="contentContainer" class="flex-grow bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col min-h-[550px] transition-all duration-300">
+            
+            <!-- TOP BAR (Tab Title / Info) -->
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center flex-wrap gap-2">
+                <div>
+                    <span id="moduleBadge" class="text-xs font-bold uppercase tracking-widest text-indigo-600">Module 1</span>
+                    <h2 id="moduleTitle" class="serif-font text-2xl font-bold text-slate-800">The Accounting Equation</h2>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-slate-500">Need Help?</span>
+                    <button onclick="triggerHint()" class="p-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200 transition focus:outline-none" title="Get Hint">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464a1 1 0 10-1.414-1.414l-.707.707a1 1 0 101.414 1.414l.707-.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14H8a4 4 0 01-4-4 4 4 0 018 0 4 4 0 01-4 4z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MAIN DYNAMIC CONTAINER -->
+            <div id="interactiveArea" class="flex-grow p-6 flex flex-col justify-between">
+                <!-- Content will be injected dynamically here -->
+            </div>
+
+            <!-- FOOTER NAVIGATION -->
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-between items-center">
+                <button id="prevBtn" onclick="navigateTab(-1)" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 transition text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed">
+                    ← Back
+                </button>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-slate-400">Step <span id="currentStepText">1</span> of 5</span>
+                </div>
+                <button id="nextBtn" onclick="navigateTab(1)" class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition text-sm font-semibold flex items-center space-x-1 shadow-md shadow-indigo-200">
+                    <span>Continue</span> <span class="text-lg">→</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Success / Info Notification Overlay System (No browser Alerts) -->
+    <div id="customToast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 max-w-sm w-full bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 pointer-events-none flex items-start space-x-3">
+        <div id="toastIcon" class="p-2 bg-green-100 text-green-600 rounded-lg">
+            ✓
+        </div>
+        <div>
+            <h4 id="toastTitle" class="font-bold text-slate-800 text-sm">Perfect Answer!</h4>
+            <p id="toastMessage" class="text-xs text-slate-500 mt-0.5">You've successfully solved this transaction.</p>
+        </div>
+    </div>
+
+    <!-- Background Music / Sound Toggle Indicator -->
+    <footer class="bg-slate-100 py-4 text-center border-t border-slate-200 text-xs text-slate-500">
+        <p>© 2026 Community College accounting interactive pathway • Prepared with care for incoming freshmen.</p>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT LOGIC -->
+    <script>
+        // Track overall session state
+        const state = {
+            currentTab: 1,
+            xp: 0,
+            equationSim: {
+                assets: 5000,
+                liabilities: 2000,
+                equity: 3000
+            },
+            leftRightQuizAnswered: false,
+            dealerMatchState: {
+                Debit: [],
+                Credit: []
+            },
+            sandboxTransactions: [
+                { id: 1, desc: "Owner invests $10,000 cash to start the college tutoring business.", debit: "Cash (Asset)", credit: "Owner's Capital (Equity)", amount: 10000, active: true },
+                { id: 2, desc: "Purchased $1,500 of office supplies on store credit (to pay later).", debit: "Supplies (Asset)", credit: "Accounts Payable (Liability)", amount: 1500, active: false },
+                { id: 3, desc: "Billed tutoring clients $3,000 for consulting services rendered.", debit: "Accounts Receivable (Asset)", credit: "Service Revenue (Revenue)", amount: 3000, active: false },
+                { id: 4, desc: "Paid $800 cash for store rent this month.", debit: "Rent Expense (Expense)", credit: "Cash (Asset)", amount: 800, active: false }
+            ],
+            sandboxCurrentIndex: 0,
+            sandboxDebits: [],
+            sandboxCredits: [],
+            finalQuizIndex: 0,
+            finalQuizAnswers: {},
+            finalQuizScore: 0,
+            certName: ""
+        };
+
+        // Tab titles and hints
+        const tabMeta = {
+            1: {
+                title: "The Accounting Balance Sheet Equation",
+                badge: "Module 1: The Core Foundation",
+                bubble: "Think of a balance sheet like a scales of justice. Every single asset (cool stuff like Cash or a building) must be financed either by borrowing (Liabilities) or your own money (Equity). Click the elements to experiment with balancing!",
+                hint: "Ensure both sides of the equation always equal each other. If you add $1,000 to Assets, you must either decrease Assets by $1,000, or increase Liabilities/Equity by $1,000!"
+            },
+            2: {
+                title: "Debits and Credits: Left vs. Right",
+                badge: "Module 2: Defining the Terms",
+                bubble: "Drop the idea that Debits are 'good' and Credits are 'bad'. In accounting, they literally just mean directional directions: Debit is LEFT, Credit is RIGHT. Let's practice distinguishing them!",
+                hint: "Always remember: Debit = Left, Credit = Right. No exception, no matter what class of account we are playing with!"
+            },
+            3: {
+                title: "The Golden Rule: DEA LER",
+                badge: "Module 3: Visualizing Behaviors",
+                bubble: "How do different accounts grow? Use my favorite abbreviation: DEA LER! Dividends, Expenses, and Assets grow on the Left (Debit). Liabilities, Equity, and Revenue grow on the Right (Credit). Try sorting them!",
+                hint: "D-E-A accounts increase with Debit. L-E-R accounts increase with Credit. Match the cards to the proper growth bucket."
+            },
+            4: {
+                title: "Practice Journal Sandbox",
+                badge: "Module 4: Entering Transactions",
+                bubble: "Every transaction has a dual-aspect effect. For every debit, there must be an equal credit! Let's enter a few journal entries for our new business.",
+                hint: "Select a debit account and a credit account from the options that match where the value is going and where it came from."
+            },
+            5: {
+                title: "Professor's Final Assessment",
+                badge: "Module 5: Earn Your Credentials",
+                bubble: "Ready to show off what you've learned? Solve these questions correctly to earn your Certificate of Completion in Debits & Credits. You can do this!",
+                hint: "Review your notes: Debits must equal credits. Assets increase on the Debit side. Liabilities and Revenue increase on Credit."
+            }
+        };
+
+        // Render Tabs
+        function switchTab(tabNum) {
+            state.currentTab = tabNum;
+            
+            // Update Navigation Menu Visuals
+            for (let i = 1; i <= 5; i++) {
+                const navBtn = document.getElementById(`nav-${i}`);
+                const stepSpan = navBtn.querySelector('span:first-child');
+                
+                if (i === tabNum) {
+                    navBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-left bg-indigo-50 text-indigo-700 transition";
+                    stepSpan.className = "w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs";
+                } else if (i < tabNum) {
+                    navBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-left text-green-700 hover:bg-slate-50 transition";
+                    stepSpan.className = "w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold";
+                    stepSpan.innerHTML = "✓";
+                } else {
+                    navBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-left text-slate-600 hover:bg-slate-50 transition";
+                    stepSpan.className = "w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs";
+                    stepSpan.innerHTML = i;
+                }
+            }
+
+            // Update Progress Bar
+            const percent = tabNum * 20;
+            document.getElementById('progressBar').style.width = `${percent}%`;
+            document.getElementById('progressPercent').innerText = `${percent}%`;
+
+            // Update Titles
+            document.getElementById('moduleBadge').innerText = tabMeta[tabNum].badge;
+            document.getElementById('moduleTitle').innerText = tabMeta[tabNum].title;
+            document.getElementById('profBubble').innerText = tabMeta[tabNum].bubble;
+            document.getElementById('currentStepText').innerText = tabNum;
+
+            // Manage Footer Button states
+            document.getElementById('prevBtn').disabled = (tabNum === 1);
+            if (tabNum === 5) {
+                document.getElementById('nextBtn').innerHTML = '<span>Finish Class</span> <span class="text-lg">✓</span>';
+            } else {
+                document.getElementById('nextBtn').innerHTML = '<span>Continue</span> <span class="text-lg">→</span>';
+            }
+
+            renderInteractiveContent();
+        }
+
+        function navigateTab(direction) {
+            let target = state.currentTab + direction;
+            if (target >= 1 && target <= 5) {
+                // If moving from final tab, handle graduation check
+                if (state.currentTab === 5 && direction === 1) {
+                    processGraduation();
+                } else {
+                    switchTab(target);
+                }
+            }
+        }
+
+        // Custom Notification Utility
+        function showToast(title, message, isSuccess = true) {
+            const toast = document.getElementById('customToast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMsg = document.getElementById('toastMessage');
+
+            if (isSuccess) {
+                toastIcon.className = "p-2 bg-green-100 text-green-600 rounded-lg";
+                toastIcon.innerHTML = "✓";
+                addXp(25);
+            } else {
+                toastIcon.className = "p-2 bg-red-100 text-red-600 rounded-lg";
+                toastIcon.innerHTML = "✕";
+            }
+
+            toastTitle.innerText = title;
+            toastMsg.innerText = message;
+
+            // Trigger Slide In
+            toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300 max-w-sm w-full bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 pointer-events-auto flex items-start space-x-3";
+            
+            setTimeout(() => {
+                toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 max-w-sm w-full bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 pointer-events-none flex items-start space-x-3";
+            }, 3500);
+        }
+
+        function addXp(amount) {
+            state.xp += amount;
+            document.getElementById('badgeScore').innerHTML = `<span class="text-amber-400">★</span> <span>${state.xp} / 500 XP</span>`;
+        }
+
+        function triggerHint() {
+            showToast("Professor's Hint", tabMeta[state.currentTab].hint, false);
+        }
+
+        // Dispatcher for content injection
+        function renderInteractiveContent() {
+            const container = document.getElementById('interactiveArea');
+            container.innerHTML = ""; // Clear
+
+            switch (state.currentTab) {
+                case 1:
+                    renderEquationScreen(container);
+                    break;
+                case 2:
+                    renderLeftRightScreen(container);
+                    break;
+                case 3:
+                    renderDealerScreen(container);
+                    break;
+                case 4:
+                    renderSandboxScreen(container);
+                    break;
+                case 5:
+                    renderQuizScreen(container);
+                    break;
+            }
+        }
+
+        /* ================= MODULE 1: EQUATION SCRIPTS ================= */
+        function renderEquationScreen(container) {
+            const wrapper = document.createElement('div');
+            wrapper.className = "flex flex-col h-full justify-between space-y-6";
+
+            wrapper.innerHTML = `
+                <div class="space-y-4">
+                    <p class="text-sm sm:text-base text-slate-600">
+                        The ultimate foundational law of modern corporate structure says that all owned properties (<strong class="text-indigo-600">Assets</strong>) must balance against debts (<strong class="text-amber-600">Liabilities</strong>) plus what remains for owners (<strong class="text-emerald-600">Equity</strong>).
+                    </p>
+
+                    <!-- Interactive Equation Scales visualization -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mt-6">
+                        <!-- Assets Box -->
+                        <div class="bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between hover:scale-[1.01] transition duration-200">
+                            <div>
+                                <h3 class="font-bold text-indigo-900 text-lg">Assets</h3>
+                                <p class="text-xs text-slate-500 mb-4">Things of value you OWN</p>
+                                <div class="text-2xl font-black text-indigo-700 tracking-tight">$<span id="eq-assets">${state.equationSim.assets.toLocaleString()}</span></div>
+                            </div>
+                            <div class="mt-4 flex gap-2 justify-center">
+                                <button onclick="adjustEquation('assets', -1000)" class="px-2.5 py-1 bg-white border border-indigo-200 text-indigo-700 text-xs font-bold rounded-lg hover:bg-indigo-100 transition shadow-sm">- $1,000</button>
+                                <button onclick="adjustEquation('assets', 1000)" class="px-2.5 py-1 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition shadow-sm">+ $1,000</button>
+                            </div>
+                            <div class="mt-3 text-left text-[11px] text-indigo-600 border-t border-indigo-100 pt-2 space-y-1">
+                                <div>• Cash on hand</div>
+                                <div>• Equipment & Computers</div>
+                            </div>
+                        </div>
+
+                        <!-- Equal Sign -->
+                        <div class="flex flex-col items-center justify-center py-2 md:py-0">
+                            <span class="text-4xl font-extrabold text-slate-400 serif-font">=</span>
+                            <span class="text-xs uppercase tracking-widest font-semibold text-slate-400">Must Balance</span>
+                        </div>
+
+                        <!-- Liabilities & Equity Group -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 col-span-1 md:col-span-1 flex-grow">
+                            <!-- Liabilities Box -->
+                            <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between hover:scale-[1.01] transition duration-200">
+                                <div>
+                                    <h3 class="font-bold text-amber-950 text-lg">Liabilities</h3>
+                                    <p class="text-xs text-slate-500 mb-4">Debts you OWE</p>
+                                    <div class="text-2xl font-black text-amber-800 tracking-tight">$<span id="eq-liabilities">${state.equationSim.liabilities.toLocaleString()}</span></div>
+                                </div>
+                                <div class="mt-4 flex gap-2 justify-center">
+                                    <button onclick="adjustEquation('liabilities', -1000)" class="px-2.5 py-1 bg-white border border-amber-200 text-amber-800 text-xs font-bold rounded-lg hover:bg-amber-100 transition shadow-sm">- $1,000</button>
+                                    <button onclick="adjustEquation('liabilities', 1000)" class="px-2.5 py-1 bg-amber-700 text-white text-xs font-bold rounded-lg hover:bg-amber-800 transition shadow-sm">+ $1,000</button>
+                                </div>
+                                <div class="mt-3 text-left text-[11px] text-amber-800 border-t border-amber-100 pt-2 space-y-1">
+                                    <div>• Credit Card debt</div>
+                                    <div>• Bank Loans</div>
+                                </div>
+                            </div>
+
+                            <!-- Equity Box -->
+                            <div class="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between hover:scale-[1.01] transition duration-200">
+                                <div>
+                                    <h3 class="font-bold text-emerald-950 text-lg">Equity</h3>
+                                    <p class="text-xs text-slate-500 mb-4">Owner's share value</p>
+                                    <div class="text-2xl font-black text-emerald-800 tracking-tight">$<span id="eq-equity">${state.equationSim.equity.toLocaleString()}</span></div>
+                                </div>
+                                <div class="mt-4 flex gap-2 justify-center">
+                                    <button onclick="adjustEquation('equity', -1000)" class="px-2.5 py-1 bg-white border border-emerald-200 text-emerald-800 text-xs font-bold rounded-lg hover:bg-emerald-100 transition shadow-sm">- $1,000</button>
+                                    <button onclick="adjustEquation('equity', 1000)" class="px-2.5 py-1 bg-emerald-700 text-white text-xs font-bold rounded-lg hover:bg-emerald-800 transition shadow-sm">+ $1,000</button>
+                                </div>
+                                <div class="mt-3 text-left text-[11px] text-emerald-800 border-t border-emerald-100 pt-2 space-y-1">
+                                    <div>• Owner investment</div>
+                                    <div>• Accumulated Profit</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Balancing Statement bar -->
+                    <div id="equationFeedback" class="mt-4 p-4 rounded-xl text-center font-semibold text-sm transition duration-300">
+                        Checking scales alignment...
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 flex items-start space-x-3">
+                    <span class="text-lg">💡</span>
+                    <p class="text-xs text-slate-600">
+                        <strong>Interactive challenge:</strong> Try adjusting the values so that the equation balances perfectly. Remember: <span class="bg-indigo-100 px-1 py-0.5 rounded text-indigo-800 font-bold">Assets = Liabilities + Equity</span>. Once you match them, the scale banner turns green!
+                    </p>
+                </div>
+            `;
+            container.appendChild(wrapper);
+            checkEquationBalance();
+        }
+
+        function adjustEquation(category, amount) {
+            if (state.equationSim[category] + amount >= 0) {
+                state.equationSim[category] += amount;
+                
+                // Update elements in UI safely
+                document.getElementById(`eq-${category}`).innerText = state.equationSim[category].toLocaleString();
+                checkEquationBalance();
+            }
+        }
+
+        function checkEquationBalance() {
+            const assets = state.equationSim.assets;
+            const rightSide = state.equationSim.liabilities + state.equationSim.equity;
+            const feedback = document.getElementById('equationFeedback');
+
+            if (assets === rightSide) {
+                feedback.className = "mt-4 p-4 rounded-xl text-center font-bold text-sm bg-green-100 text-green-800 border border-green-200 transition duration-300";
+                feedback.innerHTML = `✓ Equation is in Perfect Balance! Assets ($${assets.toLocaleString()}) = Liabilities + Equity ($${rightSide.toLocaleString()}). +50 XP awarded!`;
+                addXp(10);
+            } else {
+                feedback.className = "mt-4 p-4 rounded-xl text-center font-bold text-sm bg-red-100 text-red-800 border border-red-200 transition duration-300";
+                const diff = Math.abs(assets - rightSide);
+                feedback.innerHTML = `⚠️ OUT OF BALANCE by $${diff.toLocaleString()}! Current: Assets ($${assets.toLocaleString()}) vs Right Side ($${rightSide.toLocaleString()}). Adjust them to balance.`;
+            }
+        }
+
+
+        /* ================= MODULE 2: LEFT VS RIGHT SCRIPTS ================= */
+        function renderLeftRightScreen(container) {
+            const wrapper = document.createElement('div');
+            wrapper.className = "flex flex-col h-full justify-between space-y-6";
+
+            wrapper.innerHTML = `
+                <div class="space-y-4">
+                    <p class="text-sm sm:text-base text-slate-600">
+                        In medieval Italy, accountants used two Latin words: <strong class="text-indigo-600">debere</strong> (what is owed) and <strong class="text-emerald-600">credere</strong> (what is trusted). Over time, we abbreviated them to <strong class="text-indigo-600 font-bold">Debit (Dr.)</strong> and <strong class="text-emerald-600 font-bold">Credit (Cr.)</strong>.
+                    </p>
+
+                    <!-- Large Interactive T-Account concept -->
+                    <div class="max-w-md mx-auto bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm mt-4">
+                        <h4 class="text-center font-bold text-slate-800 text-lg border-b border-slate-300 pb-2 mb-4">Visual T-Account structure</h4>
+                        <div class="grid grid-cols-2 text-center relative">
+                            <!-- Vertical Divider Line -->
+                            <div class="absolute top-0 bottom-0 left-1/2 w-[2px] bg-slate-300 -translate-x-1/2"></div>
+                            
+                            <!-- Left Column -->
+                            <div class="pr-4 space-y-3">
+                                <h5 class="text-indigo-600 font-extrabold text-xl tracking-wide uppercase">DEBIT</h5>
+                                <div class="bg-indigo-50 border border-indigo-200 text-indigo-700 py-3 px-1 rounded-xl text-xs sm:text-sm font-semibold shadow-sm">
+                                    Always is on the<br>
+                                    <strong class="text-base text-indigo-800">👈 LEFT</strong>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="pl-4 space-y-3">
+                                <h5 class="text-emerald-600 font-extrabold text-xl tracking-wide uppercase">CREDIT</h5>
+                                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 py-3 px-1 rounded-xl text-xs sm:text-sm font-semibold shadow-sm">
+                                    Always is on the<br>
+                                    <strong class="text-base text-emerald-800">RIGHT 👉</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Concept check Question -->
+                    <div class="mt-6 border border-slate-200 bg-white p-5 rounded-2xl shadow-sm">
+                        <label class="block font-bold text-slate-800 text-base mb-3">
+                            🤔 Quick Quiz: What does a "Credit" mean in traditional accounting terminology?
+                        </label>
+                        <div id="quizOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button onclick="checkLeftRightAns(false, this)" class="option-btn text-left p-3.5 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+                                A) It means you have extra money/savings.
+                            </button>
+                            <button onclick="checkLeftRightAns(false, this)" class="option-btn text-left p-3.5 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+                                B) It represents a "good" financial event.
+                            </button>
+                            <button onclick="checkLeftRightAns(true, this)" class="option-btn text-left p-3.5 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+                                C) It literally just means the Right side of an account.
+                            </button>
+                            <button onclick="checkLeftRightAns(false, this)" class="option-btn text-left p-3.5 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+                                D) It means your assets are decreasing.
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 flex items-start space-x-3">
+                    <span class="text-lg">🎓</span>
+                    <p class="text-xs text-slate-600">
+                        <strong>Professor's Tip:</strong> Do not confuse accounting Credits with personal Credit Cards or store credit points. They are totally separate concepts. Simply visualize a letter T: Debit is the left gate, Credit is the right gate.
+                    </p>
+                </div>
+            `;
+            container.appendChild(wrapper);
+        }
+
+        function checkLeftRightAns(isCorrect, element) {
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(btn => {
+                btn.className = "option-btn text-left p-3.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-400 cursor-not-allowed";
+                btn.disabled = true;
+            });
+
+            if (isCorrect) {
+                element.className = "option-btn text-left p-3.5 border-2 border-green-500 bg-green-50 rounded-xl text-sm font-bold text-green-800";
+                showToast("Splendid Job!", "You correctly identified that Debit means Left and Credit means Right. It's that simple!", true);
+            } else {
+                element.className = "option-btn text-left p-3.5 border-2 border-red-500 bg-red-50 rounded-xl text-sm font-bold text-red-800 animate-shake";
+                showToast("Not quite!", "Remember, Debit and Credit are directions, not values. Credit is simply the right side.", false);
+            }
+        }
+
+
+        /* ================= MODULE 3: THE DEA LER RULE SCRIPTS ================= */
+        const dealerPool = [
+            { id: 'item-1', name: 'Cash', type: 'Debit', cat: 'Asset (A)' },
+            { id: 'item-2', name: 'Supplies', type: 'Debit', cat: 'Asset (A)' },
+            { id: 'item-3', name: 'Rent Expense', type: 'Debit', cat: 'Expense (E)' },
+            { id: 'item-4', name: 'Accounts Payable', type: 'Credit', cat: 'Liability (L)' },
+            { id: 'item-5', name: 'Service Revenue', type: 'Credit', cat: 'Revenue (R)' },
+            { id: 'item-6', name: 'Owner\'s Capital', type: 'Credit', cat: 'Equity (E)' }
+        ];
+
+        function renderDealerScreen(container) {
+            const wrapper = document.createElement('div');
+            wrapper.className = "flex flex-col h-full justify-between space-y-6";
+
+            wrapper.innerHTML = `
+                <div class="space-y-4">
+                    <p class="text-sm sm:text-base text-slate-600">
+                        Different accounts increase in different directions. To easily remember how they behave, we use the golden anagram 
+                        <strong class="text-indigo-600">DEA</strong> & <strong class="text-emerald-700">LER</strong>.
+                    </p>
+
+                    <!-- DEA LER Formula cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- DEA Card -->
+                        <div class="bg-indigo-50/50 border border-indigo-200 rounded-2xl p-4">
+                            <h4 class="font-extrabold text-indigo-900 text-lg flex items-center space-x-2">
+                                <span class="bg-indigo-600 text-white rounded px-2">DEA</span>
+                                <span>= Grow with DEBITS (Left)</span>
+                            </h4>
+                            <p class="text-xs text-slate-500 mt-1">To increase these, you entry them on the left.</p>
+                            <div class="grid grid-cols-3 gap-2 mt-3 text-center">
+                                <div class="bg-white p-2 rounded-lg border border-indigo-100 text-xs font-bold text-indigo-700">Dividends / Draw</div>
+                                <div class="bg-white p-2 rounded-lg border border-indigo-100 text-xs font-bold text-indigo-700">Expenses</div>
+                                <div class="bg-white p-2 rounded-lg border border-indigo-100 text-xs font-bold text-indigo-700">Assets</div>
+                            </div>
+                        </div>
+
+                        <!-- LER Card -->
+                        <div class="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4">
+                            <h4 class="font-extrabold text-emerald-900 text-lg flex items-center space-x-2">
+                                <span class="bg-emerald-600 text-white rounded px-2">LER</span>
+                                <span>= Grow with CREDITS (Right)</span>
+                            </h4>
+                            <p class="text-xs text-slate-500 mt-1">To increase these, you entry them on the right.</p>
+                            <div class="grid grid-cols-3 gap-2 mt-3 text-center">
+                                <div class="bg-white p-2 rounded-lg border border-emerald-100 text-xs font-bold text-emerald-700">Liabilities</div>
+                                <div class="bg-white p-2 rounded-lg border border-emerald-100 text-xs font-bold text-emerald-700">Equity</div>
+                                <div class="bg-white p-2 rounded-lg border border-emerald-100 text-xs font-bold text-emerald-700">Revenue</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Matching Game Area -->
+                    <div class="mt-6">
+                        <h4 class="font-bold text-slate-800 text-base mb-2">🎓 Interactive Sort: Drag or Match the accounts below!</h4>
+                        <p class="text-xs text-slate-500 mb-4">Click an account button below, then assign it to the proper category bucket!</p>
+
+                        <!-- Items to sort -->
+                        <div id="sortPool" class="flex flex-wrap gap-2 mb-6">
+                            <!-- Items dynamically added here -->
+                        </div>
+
+                        <!-- Target Buckets -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Debit Target -->
+                            <div id="bucket-debit" class="bg-slate-50 border-2 border-dashed border-indigo-300 rounded-2xl p-4 min-h-[140px] flex flex-col justify-between">
+                                <div>
+                                    <h5 class="text-indigo-800 font-bold text-sm uppercase tracking-wider mb-2">👈 Increases on DEBIT Side (DEA)</h5>
+                                    <div id="debitBucketItems" class="flex flex-wrap gap-2"></div>
+                                </div>
+                                <div class="text-[11px] text-indigo-500 mt-2 text-right">Target Accounts: Asset, Expense, Draw</div>
+                            </div>
+
+                            <!-- Credit Target -->
+                            <div id="bucket-credit" class="bg-slate-50 border-2 border-dashed border-emerald-300 rounded-2xl p-4 min-h-[140px] flex flex-col justify-between">
+                                <div>
+                                    <h5 class="text-emerald-800 font-bold text-sm uppercase tracking-wider mb-2">Increases on CREDIT Side (LER) 👉</h5>
+                                    <div id="creditBucketItems" class="flex flex-wrap gap-2"></div>
+                                </div>
+                                <div class="text-[11px] text-emerald-500 mt-2 text-right">Target Accounts: Liability, Equity, Revenue</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 flex items-start space-x-3">
+                    <span class="text-lg">⚡</span>
+                    <p class="text-xs text-slate-600">
+                        <strong>Rule of Thumb:</strong> If a debit increases an Asset, a credit must do the exact opposite (decrease it). It's balanced symmetrical symmetry!
+                    </p>
+                </div>
+            `;
+            container.appendChild(wrapper);
+            initDealerGame();
+        }
+
+        let selectedMatchItem = null;
+
+        function initDealerGame() {
+            const poolDiv = document.getElementById('sortPool');
+            poolDiv.innerHTML = "";
+            document.getElementById('debitBucketItems').innerHTML = "";
+            document.getElementById('creditBucketItems').innerHTML = "";
+
+            dealerPool.forEach(item => {
+                const btn = document.createElement('button');
+                btn.id = item.id;
+                btn.className = "px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold hover:border-indigo-500 hover:shadow-sm transition active:scale-95";
+                btn.innerHTML = `${item.name} <span class="block text-[10px] text-slate-400 font-medium">${item.cat}</span>`;
+                btn.onclick = () => selectItemForMatch(item, btn);
+                poolDiv.appendChild(btn);
+            });
+
+            // Make buckets clickable
+            document.getElementById('bucket-debit').onclick = () => dropToBucket('Debit');
+            document.getElementById('bucket-credit').onclick = () => dropToBucket('Credit');
+        }
+
+        function selectItemForMatch(item, element) {
+            // Remove previous selections
+            document.querySelectorAll('#sortPool button').forEach(b => {
+                b.classList.remove('ring-4', 'ring-indigo-300', 'border-indigo-500');
+            });
+            
+            selectedMatchItem = item;
+            element.classList.add('ring-4', 'ring-indigo-300', 'border-indigo-500');
+        }
+
+        function dropToBucket(bucketType) {
+            if (!selectedMatchItem) {
+                showToast("No selection", "Please tap an account card from the pool first, then choose a bucket!", false);
+                return;
+            }
+
+            if (selectedMatchItem.type === bucketType) {
+                // Correct Match
+                const targetId = bucketType === 'Debit' ? 'debitBucketItems' : 'creditBucketItems';
+                const container = document.getElementById(targetId);
+                
+                const chip = document.createElement('span');
+                chip.className = `px-3 py-1.5 ${bucketType === 'Debit' ? 'bg-indigo-100 text-indigo-800 border-indigo-200' : 'bg-green-100 text-green-800 border-green-200'} border rounded-lg text-xs font-bold animate-bounce`;
+                chip.innerText = selectedMatchItem.name;
+                container.appendChild(chip);
+
+                // Remove from top pool
+                const sourceBtn = document.getElementById(selectedMatchItem.id);
+                if (sourceBtn) sourceBtn.remove();
+                
+                showToast("Nice Placement!", `${selectedMatchItem.name} increases via ${bucketType}! Keep going.`, true);
+                selectedMatchItem = null;
+
+                // Check win condition
+                if (document.getElementById('sortPool').children.length === 0) {
+                    showToast("Excellent Game Work!", "You matched all standard ledger categories perfectly. DEA LER master!", true);
+                }
+            } else {
+                showToast("Incorrect match", `Think about ${selectedMatchItem.name} (${selectedMatchItem.cat}). Does it fit in DEA (Debits) or LER (Credits)?`, false);
+            }
+        }
+
+
+        /* ================= MODULE 4: SANDBOX JOURNAL ENTRY SCRIPTS ================= */
+        function renderSandboxScreen(container) {
+            const wrapper = document.createElement('div');
+            wrapper.className = "flex flex-col h-full justify-between space-y-6";
+
+            const currentTx = state.sandboxTransactions[state.sandboxCurrentIndex];
+
+            wrapper.innerHTML = `
+                <div class="space-y-4">
+                    <p class="text-sm sm:text-base text-slate-600">
+                        Let's act as actual Bookkeepers! Use the selectors below to choose which account increases (<strong class="text-indigo-600">Debited</strong>) and which balances it (<strong class="text-emerald-600 font-bold">Credited</strong>).
+                    </p>
+
+                    <!-- Transaction Card -->
+                    <div class="bg-indigo-900 text-white rounded-2xl p-5 shadow-md relative overflow-hidden">
+                        <div class="absolute -right-6 -bottom-6 text-indigo-800 text-9xl font-bold opacity-30 select-none">
+                            TX
+                        </div>
+                        <div class="relative z-10">
+                            <span class="text-xs uppercase tracking-widest text-amber-400 font-bold">Transaction #${currentTx.id} of 4</span>
+                            <h4 class="text-lg font-bold mt-1 serif-font">"${currentTx.desc}"</h4>
+                            <div class="mt-3 inline-block bg-indigo-950 px-3 py-1 rounded-full text-xs text-indigo-200 font-semibold">
+                                Impact Amount: $${currentTx.amount.toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Journal Entry Panel -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 mt-4">
+                        <h4 class="font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider">The Journal entry Voucher</h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Debit Setup -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-indigo-700 uppercase">1. Select Debit Account (LEFT SIDE)</label>
+                                <select id="debitSelect" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                    <option value="">-- Choose Account --</option>
+                                    <option value="Cash (Asset)">Cash (Asset)</option>
+                                    <option value="Supplies (Asset)">Supplies (Asset)</option>
+                                    <option value="Accounts Receivable (Asset)">Accounts Receivable (Asset)</option>
+                                    <option value="Accounts Payable (Liability)">Accounts Payable (Liability)</option>
+                                    <option value="Owner's Capital (Equity)">Owner's Capital (Equity)</option>
+                                    <option value="Service Revenue (Revenue)">Service Revenue (Revenue)</option>
+                                    <option value="Rent Expense (Expense)">Rent Expense (Expense)</option>
+                                </select>
+                            </div>
+
+                            <!-- Credit Setup -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-emerald-700 uppercase">2. Select Credit Account (RIGHT SIDE)</label>
+                                <select id="creditSelect" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                    <option value="">-- Choose Account --</option>
+                                    <option value="Cash (Asset)">Cash (Asset)</option>
+                                    <option value="Supplies (Asset)">Supplies (Asset)</option>
+                                    <option value="Accounts Receivable (Asset)">Accounts Receivable (Asset)</option>
+                                    <option value="Accounts Payable (Liability)">Accounts Payable (Liability)</option>
+                                    <option value="Owner's Capital (Equity)">Owner's Capital (Equity)</option>
+                                    <option value="Service Revenue (Revenue)">Service Revenue (Revenue)</option>
+                                    <option value="Rent Expense (Expense)">Rent Expense (Expense)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Action Submit -->
+                        <div class="mt-6 flex justify-end">
+                            <button onclick="submitSandboxEntry()" class="w-full sm:w-auto px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition shadow text-sm">
+                                Record Journal Entry & Post
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Posted History Ledger Preview -->
+                    <div class="border border-slate-200 rounded-2xl p-4 bg-white mt-4">
+                        <h4 class="font-bold text-slate-800 text-xs uppercase mb-3 text-slate-400">Your Real-time General Journal</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-200 text-slate-400">
+                                        <th class="pb-2">Account Title</th>
+                                        <th class="pb-2 text-right">Debit ($)</th>
+                                        <th class="pb-2 text-right">Credit ($)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="journalBody" class="divide-y divide-slate-100 text-slate-600 font-medium">
+                                    <!-- Dynamic rows from completed entries -->
+                                    <tr class="text-slate-400 italic">
+                                        <td class="py-2" colspan="3">Waiting for your first posted transaction above...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 flex items-start space-x-3">
+                    <span class="text-lg">🔍</span>
+                    <p class="text-xs text-slate-600">
+                        <strong>Hint:</strong> Think about what was gained/received vs. what was given up. For example, starting a business brings in <strong class="text-indigo-600">Cash</strong> (Debit Asset) from the owner's <strong class="text-emerald-700">Capital</strong> (Credit Equity).
+                    </p>
+                </div>
+            `;
+            container.appendChild(wrapper);
+            renderSandboxLedger();
+        }
+
+        function submitSandboxEntry() {
+            const currentTx = state.sandboxTransactions[state.sandboxCurrentIndex];
+            const selectedDebit = document.getElementById('debitSelect').value;
+            const selectedCredit = document.getElementById('creditSelect').value;
+
+            if (!selectedDebit || !selectedCredit) {
+                showToast("Incomplete Entry", "Both Debit and Credit account fields must be selected to record!", false);
+                return;
+            }
+
+            if (selectedDebit === selectedCredit) {
+                showToast("Validation Error", "Debit account cannot be exactly the same as Credit account. Double Entry bookkeeping requires separate target balances!", false);
+                return;
+            }
+
+            // Check correct logic
+            if (selectedDebit === currentTx.debit && selectedCredit === currentTx.credit) {
+                // Correct!
+                showToast("Entry Posted Successfully!", `Correct! Debited ${selectedDebit} and Credited ${selectedCredit} for $${currentTx.amount.toLocaleString()}.`, true);
+                
+                // Add to history state
+                state.sandboxDebits.push({ name: selectedDebit, amount: currentTx.amount });
+                state.sandboxCredits.push({ name: selectedCredit, amount: currentTx.amount });
+
+                // Go to next transaction if available
+                if (state.sandboxCurrentIndex < state.sandboxTransactions.length - 1) {
+                    state.sandboxCurrentIndex++;
+                    renderInteractiveContent();
+                } else {
+                    // All 4 completed
+                    showToast("Module Complete!", "Amazing work, you successfully balanced all business scenarios!", true);
+                    setTimeout(() => { switchTab(5); }, 2000);
+                }
+            } else {
+                showToast("Out of Balance / Incorrect Selection", `Review: For this transaction, identify the specific account receiving value vs the account providing value. Hint: Debits increase Assets!`, false);
+            }
+        }
+
+        function renderSandboxLedger() {
+            const body = document.getElementById('journalBody');
+            if (state.sandboxDebits.length === 0) return;
+
+            body.innerHTML = "";
+            for (let i = 0; i < state.sandboxDebits.length; i++) {
+                const debit = state.sandboxDebits[i];
+                const credit = state.sandboxCredits[i];
+
+                body.innerHTML += `
+                    <tr>
+                        <td class="py-2 font-bold text-indigo-700">${debit.name}</td>
+                        <td class="py-2 text-right font-bold text-slate-800">$${debit.amount.toLocaleString()}</td>
+                        <td class="py-2 text-right text-slate-300">-</td>
+                    </tr>
+                    <tr class="border-b border-slate-100">
+                        <td class="py-2 pl-6 text-emerald-700 font-bold">↳ ${credit.name}</td>
+                        <td class="py-2 text-right text-slate-300">-</td>
+                        <td class="py-2 text-right font-bold text-slate-800">$${credit.amount.toLocaleString()}</td>
+                    </tr>
+                `;
+            }
+        }
+
+
+        /* ================= MODULE 5: FINAL QUIZ SCRIPTS ================= */
+        const quizQuestions = [
+            {
+                q: "If you purchase brand new classroom laptops using hard cold cash, what accounts are involved and how are they affected?",
+                options: [
+                    "A) Debit Computer Equipment (Asset increases) and Credit Cash (Asset decreases).",
+                    "B) Credit Computer Equipment (Asset increases) and Debit Cash (Asset decreases).",
+                    "C) Debit Cash (Asset increases) and Credit Accounts Payable (Liability increases).",
+                    "D) Debit Laptop Expense and Credit Equity."
+                ],
+                correct: 0,
+                ex: "Both laptops and cash are assets! Since laptops increased, we Debit Computer Equipment. Since Cash was given up, we Credit Cash."
+            },
+            {
+                q: "Which accounts are increased with a Debit entry on the left side of the ledger?",
+                options: [
+                    "A) Liabilities, Capital, and Revenues.",
+                    "B) Assets, Expenses, and Dividends.",
+                    "C) Revenue, Expenses, and Liabilities.",
+                    "D) Cash, Accounts Payable, and Service Revenue."
+                ],
+                correct: 1,
+                ex: "Remember the DEA LER rule! Dividends, Expenses, and Assets (DEA) always grow with debits."
+            },
+            {
+                q: "A business performs a service and bills the client $500, to be paid next month. What is the correct journal entry?",
+                options: [
+                    "A) Debit Cash $500, Credit Service Revenue $500.",
+                    "B) Debit Service Revenue $500, Credit Accounts Receivable $500.",
+                    "C) Debit Accounts Receivable $500, Credit Service Revenue $500.",
+                    "D) Debit Cash $500, Credit Accounts Payable $500."
+                ],
+                correct: 2,
+                ex: "Since the client hasn't paid yet, we record Accounts Receivable (Asset) on the debit side, and increase Service Revenue on the credit side."
+            },
+            {
+                q: "What does double-entry bookkeeping guarantee in every transaction ledger?",
+                options: [
+                    "A) The business makes a profit every month.",
+                    "B) Every transaction will have exactly one single debit and no credit.",
+                    "C) Total Debits must always equal Total Credits.",
+                    "D) Cash accounts are always positive."
+                ],
+                correct: 3,
+                ex: "Double-entry rules mandate that for every dollar of debit, there must be a matching dollar of credit. They must balance!"
+            }
+        ];
+
+        function renderQuizScreen(container) {
+            const wrapper = document.createElement('div');
+            wrapper.className = "flex flex-col h-full justify-between space-y-6";
+
+            // If we are finished, show Certificate Generation Screen
+            if (state.finalQuizIndex >= quizQuestions.length) {
+                renderCertificateScreen(container);
+                return;
+            }
+
+            const currentQ = quizQuestions[state.finalQuizIndex];
+
+            wrapper.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Question ${state.finalQuizIndex + 1} of ${quizQuestions.length}</span>
+                        <span class="text-xs font-bold text-amber-500 bg-amber-50 px-2.5 py-1 rounded-full">Score: ${state.finalQuizScore}/${quizQuestions.length}</span>
+                    </div>
+
+                    <h4 class="text-lg font-bold text-slate-800 leading-snug serif-font">
+                        "${currentQ.q}"
+                    </h4>
+
+                    <div class="grid grid-cols-1 gap-3 mt-4">
+                        ${currentQ.options.map((opt, idx) => `
+                            <button onclick="handleQuizAnswer(${idx})" class="w-full text-left p-4 border border-slate-200 rounded-xl hover:bg-indigo-50/50 hover:border-indigo-300 transition text-sm font-medium text-slate-700 flex items-start space-x-3">
+                                <span class="bg-slate-100 text-slate-600 rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0 font-bold">${String.fromCharCode(65 + idx)}</span>
+                                <span>${opt.substring(3)}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 flex items-start space-x-3">
+                    <span class="text-lg">💭</span>
+                    <p class="text-xs text-slate-600">
+                        Take your time. Analyze each options' Debit/Credit behavior carefully. Think of the <strong>DEA LER</strong> acronym!
+                    </p>
+                </div>
+            `;
+            container.appendChild(wrapper);
+        }
+
+        function handleQuizAnswer(index) {
+            const currentQ = quizQuestions[state.finalQuizIndex];
+            const isCorrect = (index === currentQ.correct);
+
+            if (isCorrect) {
+                state.finalQuizScore++;
+                showToast("Correct Answer!", "Excellent logic! You understand the foundational entry mechanics.", true);
+            } else {
+                showToast("Incorrect Answer", `Correction: ${currentQ.ex}`, false);
+            }
+
+            // Progress to next question after small delay
+            setTimeout(() => {
+                state.finalQuizIndex++;
+                renderInteractiveContent();
+            }, 3000);
+        }
+
+        function renderCertificateScreen(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center text-center p-6 space-y-6 h-full max-w-xl mx-auto">
+                    <div class="text-6xl animate-bounce">🏆</div>
+                    <div class="space-y-2">
+                        <h3 class="serif-font text-3xl font-bold text-slate-900">Congratulations, Graduate!</h3>
+                        <p class="text-sm text-slate-500">You completed Professor Ledger's path with a score of ${state.finalQuizScore} / ${quizQuestions.length} correct entries!</p>
+                    </div>
+
+                    <!-- Input for Name -->
+                    <div class="w-full space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">Enter Your Name for the Certificate:</label>
+                        <input id="userNameInput" type="text" placeholder="Your Name" class="w-full text-center px-4 py-2.5 border border-slate-300 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="${state.certName}">
+                        <button onclick="generateCertificate()" class="w-full mt-2 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition shadow">
+                            Generate & View Certificate
+                        </button>
+                    </div>
+
+                    <div id="certContainer" class="hidden w-full bg-amber-50/40 border-4 border-double border-amber-500 rounded-2xl p-6 relative overflow-hidden shadow-lg mt-6">
+                        <!-- Decorative Ribbons -->
+                        <div class="absolute -right-8 -top-8 w-24 h-24 bg-amber-500 rotate-45 flex items-end justify-center pb-2 text-white font-bold text-xs select-none shadow">
+                            CLASS PASS
+                        </div>
+
+                        <div class="space-y-4">
+                            <span class="text-xs font-bold uppercase tracking-widest text-amber-600">Certificate of Completion</span>
+                            <h4 id="certNameDisplay" class="serif-font text-2xl font-bold text-slate-800 italic underline decoration-amber-500 decoration-2">Student Name</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed mx-auto max-w-sm">
+                                has successfully completed the interactive laboratory course in <strong>Debits & Credits basics (AC101)</strong>, demonstrating proficiency in the double-entry accounting equation.
+                            </p>
+                            <div class="flex justify-between items-center pt-4 border-t border-amber-200/60 max-w-md mx-auto text-[10px] text-slate-400">
+                                <div>Date: ${new Date().toLocaleDateString()}</div>
+                                <div class="font-semibold italic text-slate-600">Signed: Professor Ledger 🎓</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateCertificate() {
+            const name = document.getElementById('userNameInput').value.trim() || "Brilliant Future Accountant";
+            state.certName = name;
+            
+            document.getElementById('certNameDisplay').innerText = name;
+            document.getElementById('certContainer').classList.remove('hidden');
+            
+            showToast("Diploma Issued!", "Your digital certificate of competence is generated successfully!", true);
+        }
+
+        function processGraduation() {
+            if (state.certName) {
+                showToast("Class Dismissed!", "Thank you for joining today! You are officially ready for Accounting 101 on day one.", true);
+            } else {
+                showToast("Certificate Needed", "Type your name and click the button to claim your achievement award!", false);
+            }
+        }
+
+        // Run Initial Load
+        window.onload = function() {
+            switchTab(1);
+        };
+    </script>
+</body>
+</html>
