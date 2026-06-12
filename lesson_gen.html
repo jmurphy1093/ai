@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lesson Plan Prompt Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        /* Printable optimization */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-full {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-shadow: none !important;
+                background: transparent !important;
+                color: #000000 !important;
+                padding: 0 !important;
+            }
+            .print-textarea {
+                border: none !important;
+                background: transparent !important;
+                white-space: pre-wrap !important;
+                font-family: monospace !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col antialiased">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-brand-500 text-white rounded-xl shadow-md shadow-brand-500/20">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-brand-600 to-sky-500 bg-clip-text text-transparent dark:from-brand-500 dark:to-sky-400">Lesson Craft</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Interactive AI Prompt Architect</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <!-- Preset Quick Buttons -->
+                <div class="hidden md:flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
+                    <span class="text-xs text-slate-500 dark:text-slate-400 px-2 font-semibold uppercase tracking-wider">Presets:</span>
+                    <button onclick="loadPreset('photosynthesis')" class="px-2.5 py-1 text-xs font-semibold bg-white dark:bg-slate-700 rounded shadow-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition">Photosynthesis</button>
+                    <button onclick="loadPreset('pythagoras')" class="px-2.5 py-1 text-xs font-semibold bg-white dark:bg-slate-700 rounded shadow-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition">Pythagoras</button>
+                    <button onclick="loadPreset('python')" class="px-2.5 py-1 text-xs font-semibold bg-white dark:bg-slate-700 rounded shadow-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition">Python Intro</button>
+                </div>
+
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleDarkMode()" id="themeBtn" class="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 transition" aria-label="Toggle Dark Mode">
+                    <!-- Sun icon -->
+                    <svg id="sunIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707-.707m12.728 0l-.707.707M6.343 6.343l-.707-.707m12.728 12.728L5.636 5.636M12 8a4 4 0 100 8 4 4 0 000-8z"></path>
+                    </svg>
+                    <!-- Moon icon -->
+                    <svg id="moonIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 print-full">
+        
+        <!-- Mobile Presets Header (visible on small screens) -->
+        <div class="md:hidden flex flex-wrap gap-2 mb-6 p-3 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800 no-print">
+            <span class="text-xs text-slate-500 dark:text-slate-400 w-full mb-1 font-semibold">Load Quick Preset:</span>
+            <button onclick="loadPreset('photosynthesis')" class="px-3 py-1 text-xs font-semibold bg-white dark:bg-slate-700 rounded shadow-sm">Photosynthesis</button>
+            <button onclick="loadPreset('pythagoras')" class="px-3 py-1 text-xs font-semibold bg-white dark:bg-slate-700 rounded shadow-sm">Pythagoras</button>
+            <button onclick="loadPreset('python')" class="px-3 py-1 text-xs font-semibold bg-white dark:bg-slate-700 rounded shadow-sm">Python Intro</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start print-full">
+            
+            <!-- Left Side Panel: Configuration Controls (no-print) -->
+            <section class="lg:col-span-5 space-y-6 no-print">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
+                        <h2 class="font-bold text-lg text-slate-800 dark:text-white flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                            </svg>
+                            <span>Core Parameters</span>
+                        </h2>
+                        <button onclick="resetForm()" class="text-xs text-slate-400 hover:text-red-500 transition font-medium">Reset Fields</button>
+                    </div>
+
+                    <!-- Input Parameters -->
+                    <div class="space-y-4">
+                        <div>
+                            <label for="topic" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Lesson Topic / Core Concept</label>
+                            <input type="text" id="topic" oninput="updatePrompt()" placeholder="e.g., Photosynthesis" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition text-sm">
+                        </div>
+
+                        <div>
+                            <label for="subject" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Broader Subject / Domain</label>
+                            <input type="text" id="subject" oninput="updatePrompt()" placeholder="e.g., Plant Biology" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition text-sm">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="audience" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Target Audience</label>
+                                <input type="text" id="audience" oninput="updatePrompt()" placeholder="e.g., Grade 9" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition text-sm">
+                            </div>
+                            <div>
+                                <label for="duration" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Duration / Length</label>
+                                <input type="text" id="duration" oninput="updatePrompt()" placeholder="e.g., 60 minutes" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition text-sm">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="difficulty" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Complexity Level</label>
+                                <select id="difficulty" onchange="updatePrompt()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition text-sm">
+                                    <option value="Introductory / Beginner">Beginner</option>
+                                    <option value="Intermediate" selected>Intermediate</option>
+                                    <option value="Advanced / Specialized">Advanced</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="tone" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Instructional Tone</label>
+                                <select id="tone" onchange="updatePrompt()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition text-sm">
+                                    <option value="highly engaging, conversational, and illustrative" selected>Engaging & Conversational</option>
+                                    <option value="academic, rigorous, and formal">Academic & Formal</option>
+                                    <option value="inquiry-based, questioning, and experiential">Inquiry-Based</option>
+                                    <option value="clear, simplified, and step-by-step">Simplified / Scaffolded</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="platform" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">AI Engine Optimization</label>
+                            <select id="platform" onchange="updatePrompt()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition text-sm">
+                                <option value="General AI">General (Platform Agnostic)</option>
+                                <option value="ChatGPT (OpenAI)">ChatGPT (Optimized System Role)</option>
+                                <option value="Claude (Anthropic)">Claude (Optimized for Context Depth)</option>
+                                <option value="Gemini (Google)">Gemini (Optimized for Structured Outputs)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toggle Elements checklist -->
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+                        <h3 class="font-bold text-base text-slate-800 dark:text-white flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                            <span>Include Lesson Sections</span>
+                        </h3>
+                        <div class="flex space-x-2 text-xs">
+                            <button onclick="toggleAllSections(true)" class="text-brand-500 hover:underline">All</button>
+                            <span class="text-slate-300">|</span>
+                            <button onclick="toggleAllSections(false)" class="text-slate-400 hover:underline">None</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-2.5" id="sectionsChecklist">
+                        <!-- Checklist checkboxes generated by JS to keep synced -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Side Panel: Output Prompt Previewer (print-full) -->
+            <section class="lg:col-span-7 space-y-6 print-full">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col h-full print-full">
+                    
+                    <!-- Top Bar Action Indicators -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-700 pb-4 mb-4 no-print">
+                        <div>
+                            <h2 class="font-bold text-lg text-slate-800 dark:text-white flex items-center space-x-2">
+                                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <span>Engineered Prompt</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Copy and feed directly to any LLM engine.</p>
+                        </div>
+
+                        <!-- Main Operation Controls -->
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button onclick="copyPromptText()" id="copyBtn" class="flex items-center space-x-1.5 px-3 py-2 bg-brand-500 hover:bg-brand-600 active:scale-95 text-white text-xs font-semibold rounded-xl shadow-sm transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                                </svg>
+                                <span id="copyBtnText">Copy Prompt</span>
+                            </button>
+                            <button onclick="downloadPromptText()" class="flex items-center space-x-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 active:scale-95 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl border border-slate-200/60 dark:border-slate-600 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                                <span>Download</span>
+                            </button>
+                            <button onclick="window.print()" class="flex items-center space-x-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 active:scale-95 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl border border-slate-200/60 dark:border-slate-600 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                </svg>
+                                <span>Print</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Count Indicator -->
+                    <div class="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 mb-2 font-medium no-print">
+                        <span>Dynamic Preview Size: <span id="charCount" class="font-bold text-slate-600 dark:text-slate-300">0</span> characters</span>
+                        <span id="activeEngineBadge" class="px-2 py-0.5 bg-slate-100 dark:bg-slate-900 rounded border border-slate-200/60 dark:border-slate-800">No Customizations</span>
+                    </div>
+
+                    <!-- Prompt Display Frame -->
+                    <div class="relative flex-grow print-full">
+                        <textarea id="promptOutput" readonly class="w-full h-[520px] p-5 bg-slate-900 text-slate-100 dark:bg-slate-950 border border-slate-800 rounded-2xl mono-font text-xs md:text-sm leading-relaxed focus:outline-none resize-none print-textarea" placeholder="Configure variables on the left to synthesize your customized prompt..."></textarea>
+                        
+                        <div class="absolute bottom-4 right-4 pointer-events-none text-[10px] uppercase font-bold tracking-wider px-2 py-1 bg-slate-800/80 dark:bg-slate-900/80 text-slate-400 backdrop-blur rounded border border-slate-700/55 no-print">
+                            READ-ONLY OUTPUT
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Interactive Quick Toast System -->
+    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-24 opacity-0 scale-95 transition-all duration-300 ease-out bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2.5 z-50 text-sm font-semibold pointer-events-none border border-slate-800/20 dark:border-slate-200/10">
+        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span id="toastMsg">Action Successful</span>
+    </div>
+
+    <!-- Footer System (no-print) -->
+    <footer class="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-900 py-6 text-center text-xs text-slate-400 dark:text-slate-500 font-medium no-print">
+        <p>© 2026 Lesson Craft. Open-source educational prompt-engineering module template.</p>
+    </footer>
+
+    <script>
+        // Preset Datasets
+        const PRESETS = {
+            photosynthesis: {
+                topic: "Photosynthesis & Cellular Respiration",
+                subject: "Plant Biology & Ecology",
+                audience: "High School Seniors",
+                duration: "2-Week Module Block",
+                difficulty: "Intermediate",
+                tone: "highly engaging, conversational, and illustrative"
+            },
+            pythagoras: {
+                topic: "The Pythagorean Theorem & Spatial Applications",
+                subject: "Euclidean Geometry",
+                audience: "8th Grade Students",
+                duration: "45-Minute Lesson Session",
+                difficulty: "Introductory / Beginner",
+                tone: "clear, simplified, and step-by-step"
+            },
+            python: {
+                topic: "Intro to Algorithms and Python Functions",
+                subject: "Foundational Computer Science",
+                audience: "Undergraduate Non-Majors",
+                duration: "60-Minute Lab Block",
+                difficulty: "Introductory / Beginner",
+                tone: "inquiry-based, questioning, and experiential"
+            }
+        };
+
+        // Standard Lesson Architecture Blocks
+        const LESSON_ELEMENTS = [
+            { id: "title", label: "Lesson Title", default: true, instruction: "Create a catchy, descriptive, and memorable title for the lesson that sparks curiosity." },
+            { id: "subject", label: "Lesson Subject", default: true, instruction: "Specify the exact academic domain, focus context, and sub-disciplines involved." },
+            { id: "objectives", label: "Learning Objectives", default: true, instruction: "List 3-5 measurable, actionable behavioral objectives using verb hierarchies from Bloom's Taxonomy." },
+            { id: "key_terms", label: "Key Terms", default: true, instruction: "Identify and define 5-7 core scientific/technical terms key to this lesson. Ensure definitions are clear, age-appropriate, and concise." },
+            { id: "key_concepts", label: "Key Concepts", default: true, instruction: "Describe the foundational theories, laws, or structural logic that support this lesson." },
+            { id: "pre_test", label: "Diagnostic Pre-Test", default: true, instruction: "Provide a quick, low-stakes diagnostic 3-question pre-test with a small hidden answer key below to check baseline prior knowledge." },
+            { id: "content", label: "Instructional Content", default: true, instruction: "Draft highly structured core teaching materials. Use bold headings, structured paragraphs, bulleted technical callouts, and clean conceptual pacing suitable for the target audience." },
+            { id: "analogies", label: "Analogies & Real-World Examples", default: true, instruction: "Provide at least 2 highly relatable, intuitive analogies and practical real-world scenarios to ground the conceptual ideas in tangible familiarity." },
+            { id: "summary", label: "Summary & Review Block", default: true, instruction: "Draft a high-impact synthesis of the must-know takeaways, capturing the heart of the instructional goals." },
+            { id: "quiz", label: "Formal Review Quiz", default: true, instruction: "Provide a 5-question review evaluation (mixed multiple-choice or analytical short answer). Append a thorough, comprehensive explanatory Answer Key at the very bottom." },
+            { id: "ada", label: "ADA Accessibility Checklist", default: true, instruction: "Present a comprehensive accessibility alignment checklist specific to this lesson setup (such as alt-text layout instructions for visuals, screen reader compatibility guidance, or media descriptions)." }
+        ];
+
+        // Active State
+        let selectedSections = new Set(LESSON_ELEMENTS.filter(e => e.default).map(e => e.id));
+
+        // On Load Initialization
+        window.onload = function() {
+            // Check System Light/Dark Theme Preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+                updateThemeIcons(true);
+            } else {
+                updateThemeIcons(false);
+            }
+            
+            buildSectionsChecklist();
+            updatePrompt();
+        }
+
+        // Toggle Theme Utility
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            updateThemeIcons(isDark);
+        }
+
+        function updateThemeIcons(isDark) {
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            const themeBtn = document.getElementById('themeBtn');
+
+            if (isDark) {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        }
+
+        // Build interactive elements checkboxes
+        function buildSectionsChecklist() {
+            const container = document.getElementById('sectionsChecklist');
+            container.innerHTML = '';
+
+            LESSON_ELEMENTS.forEach(element => {
+                const labelWrapper = document.createElement('label');
+                labelWrapper.className = `flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700/60 hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer select-none transition ${selectedSections.has(element.id) ? 'bg-brand-50/40 dark:bg-brand-900/10 border-brand-200 dark:border-brand-900/40' : ''}`;
+                labelWrapper.id = `label-sec-${element.id}`;
+
+                const textSpan = document.createElement('span');
+                textSpan.className = "text-xs font-semibold text-slate-700 dark:text-slate-300";
+                textSpan.textContent = element.label;
+
+                const inputCheckbox = document.createElement('input');
+                inputCheckbox.type = 'checkbox';
+                inputCheckbox.className = "rounded text-brand-500 focus:ring-brand-500 w-4.5 h-4.5 accent-brand-500 border-slate-300 dark:border-slate-600 dark:bg-slate-900";
+                inputCheckbox.checked = selectedSections.has(element.id);
+                inputCheckbox.onchange = () => handleCheckboxToggle(element.id, inputCheckbox.checked);
+
+                labelWrapper.appendChild(textSpan);
+                labelWrapper.appendChild(inputCheckbox);
+                container.appendChild(labelWrapper);
+            });
+        }
+
+        // Checklist Change Event Handlers
+        function handleCheckboxToggle(id, isChecked) {
+            const labelNode = document.getElementById(`label-sec-${id}`);
+            if (isChecked) {
+                selectedSections.add(id);
+                labelNode.classList.add('bg-brand-50/40', 'dark:bg-brand-900/10', 'border-brand-200', 'dark:border-brand-900/40');
+            } else {
+                selectedSections.delete(id);
+                labelNode.classList.remove('bg-brand-50/40', 'dark:bg-brand-900/10', 'border-brand-200', 'dark:border-brand-900/40');
+            }
+            updatePrompt();
+        }
+
+        function toggleAllSections(status) {
+            LESSON_ELEMENTS.forEach(e => {
+                handleCheckboxToggle(e.id, status);
+            });
+            buildSectionsChecklist();
+        }
+
+        // Auto Load Presets
+        function loadPreset(key) {
+            const preset = PRESETS[key];
+            if (!preset) return;
+
+            document.getElementById('topic').value = preset.topic;
+            document.getElementById('subject').value = preset.subject;
+            document.getElementById('audience').value = preset.audience;
+            document.getElementById('duration').value = preset.duration;
+            document.getElementById('difficulty').value = preset.difficulty;
+            document.getElementById('tone').value = preset.tone;
+
+            showToast(`Preset: ${preset.topic} loaded!`);
+            updatePrompt();
+        }
+
+        // Reset Fields
+        function resetForm() {
+            document.getElementById('topic').value = '';
+            document.getElementById('subject').value = '';
+            document.getElementById('audience').value = '';
+            document.getElementById('duration').value = '';
+            document.getElementById('difficulty').value = 'Intermediate';
+            document.getElementById('tone').value = 'highly engaging, conversational, and illustrative';
+            document.getElementById('platform').value = 'General AI';
+            
+            toggleAllSections(true);
+            showToast("Inputs reset to default.");
+            updatePrompt();
+        }
+
+        // Main Prompt Engineering Matrix Formulations
+        function updatePrompt() {
+            const topic = document.getElementById('topic').value || "[Specify Topic/Concept]";
+            const subject = document.getElementById('subject').value || "[Specify Subject Area]";
+            const audience = document.getElementById('audience').value || "[Specify Learning Audience]";
+            const duration = document.getElementById('duration').value || "[Specify Lesson Duration]";
+            const difficulty = document.getElementById('difficulty').value;
+            const tone = document.getElementById('tone').value;
+            const platform = document.getElementById('platform').value;
+
+            // System optimization context blocks
+            let engineDirectives = "";
+            let platformBadge = "Platform Agnostic";
+
+            if (platform.includes("ChatGPT")) {
+                engineDirectives = `[SYSTEM INSTRUCTION & ROLE]:\nYou are an expert pedagogical architect, utilizing your broad structured knowledge base to draft an extensive, deeply scaffolded lesson module. Present information in semantic Markdown format, using deep nesting if necessary. Ensure responses match high structural consistency.`;
+                platformBadge = "ChatGPT Active";
+            } else if (platform.includes("Claude")) {
+                engineDirectives = `[SYSTEM INSTRUCTION & ROLE]:\nYou are a highly academic and pedagogical specialist. Ensure you prioritize deep structural context, rigorous foundational consistency, clear instructional sequencing, and compassionate, accessible explanation of advanced ideas.`;
+                platformBadge = "Claude Active";
+            } else if (platform.includes("Gemini")) {
+                engineDirectives = `[SYSTEM INSTRUCTION & ROLE]:\nYou are a structured instructional designer. Format details with high precision, clear structural sections, bold and clean Markdown headers, and zero padding/unnecessary conversational filler outside the lesson content itself.`;
+                platformBadge = "Gemini Active";
+            } else {
+                engineDirectives = `[SYSTEM INSTRUCTION]:\nAct as an expert, experienced instructional designer and curriculum specialist with deep subject matter knowledge.`;
+            }
+
+            document.getElementById('activeEngineBadge').textContent = platformBadge;
+
+            // Construct Sequential Instructions dynamically based on checklist
+            let sequentialSteps = "";
+            let stepCounter = 1;
+
+            LESSON_ELEMENTS.forEach(element => {
+                if (selectedSections.has(element.id)) {
+                    sequentialSteps += `${stepCounter}. ${element.label.toUpperCase()}: ${element.instruction}\n\n`;
+                    stepCounter++;
+                }
+            });
+
+            // Put it all together in one structured mega prompt
+            const structuralPrompt = `${engineDirectives}
+
+[CORE PARAMETERS]
+* Core Concept/Topic: ${topic}
+* Broad Subject Domain: ${subject}
+* Target Learning Audience: ${audience}
+* Estimated Duration/Scope: ${duration}
+* Complexity Level: ${difficulty}
+* Instructional Delivery Tone: ${tone}
+[END PARAMETERS]
+
+Your task is to design and write a complete, self-contained lesson module corresponding exactly to the parameters above. Do not truncate text, omit details, or reference external components; write out the content in its entirety.
+
+Please construct the output using the sequential structure defined below:
+
+--------------------------------------------------
+${sequentialSteps}--------------------------------------------------
+
+Provide only the fully constructed lesson plan matching the instructions above. Avoid meta-commentary, introduction preambles, or conversational sign-offs before and after generating the output. Ensure the final result is ready for direct student instruction.`;
+
+            // Display and trigger analytics
+            const outputBox = document.getElementById('promptOutput');
+            outputBox.value = structuralPrompt;
+            document.getElementById('charCount').textContent = structuralPrompt.length.toLocaleString();
+        }
+
+        // Copy Text using standard document/clipboard logic
+        function copyPromptText() {
+            const promptArea = document.getElementById('promptOutput');
+            promptArea.select();
+            promptArea.setSelectionRange(0, 99999); // Mobile compatibility
+
+            try {
+                // Using fallback execution logic per instructions
+                const success = document.execCommand('copy');
+                if (success) {
+                    showToast("Prompt copied to clipboard!");
+                    triggerBtnPulse('copyBtn', 'copyBtnText', 'Copied!');
+                } else {
+                    navigator.clipboard.writeText(promptArea.value).then(() => {
+                        showToast("Prompt copied successfully!");
+                        triggerBtnPulse('copyBtn', 'copyBtnText', 'Copied!');
+                    });
+                }
+            } catch (err) {
+                // Clipboard fallback failure response
+                showToast("Failed to copy. Please manually select and copy text.");
+            }
+        }
+
+        // Download generated prompt as structural text file
+        function downloadPromptText() {
+            const rawText = document.getElementById('promptOutput').value;
+            const topicValue = document.getElementById('topic').value || "custom_lesson";
+            const sanitizedName = topicValue.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            const filename = `lesson_craft_prompt_${sanitizedName}.txt`;
+
+            const blob = new Blob([rawText], { type: 'text/plain;charset=utf-8;' });
+            const link = document.createElement("a");
+
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast("Download started successfully!");
+            }
+        }
+
+        // Visual State Modifiers
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            
+            toastMsg.textContent = message;
+            toast.classList.remove('translate-y-24', 'opacity-0', 'scale-95');
+            toast.classList.add('translate-y-0', 'opacity-100', 'scale-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+                toast.classList.add('translate-y-24', 'opacity-0', 'scale-95');
+            }, 3000);
+        }
+
+        function triggerBtnPulse(btnId, textId, replacementText) {
+            const btn = document.getElementById(btnId);
+            const label = document.getElementById(textId);
+            const originalText = label.textContent;
+
+            btn.classList.replace('bg-brand-500', 'bg-emerald-500');
+            label.textContent = replacementText;
+
+            setTimeout(() => {
+                btn.classList.replace('bg-emerald-500', 'bg-brand-500');
+                label.textContent = originalText;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
